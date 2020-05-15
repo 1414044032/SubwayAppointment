@@ -11,6 +11,7 @@ client = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 
 def loop_task():
+    client.delete('sh_user_station_code')
     enter_data = get_record_data()
     response = client.hgetall('sh_user_access_token')
     response1 = client.hgetall('sh_user_setting')
@@ -37,14 +38,19 @@ def get_record_data():
     return ''.join(tomorrow.split(' ')[0].split('-'))
 
 
-if __name__ == '__main__':
-    # print(loop_task())
-    # scheduler = BlockingScheduler()
-    # scheduler.add_job(loop_task, 'date', run_date='2020-05-14 12:00:00')
-    # print('开始')
-    # scheduler.start()
+def hello_word():
+    print(datetime.datetime.now())
+
+# if __name__ == '__main__':
+#     # print(loop_task())
+#     scheduler = BlockingScheduler()
+#     # scheduler.add_job(loop_task, 'date', run_date='2020-05-14 12:00:00')
+#     #
+#     scheduler.add_job(hello_word, 'cron',  hour=12, second=5, day_of_week='fri')
+#     print('开始')
+#     scheduler.start()
     # result = client.hget('sh_user_setting','18404976322')
     # result = client.hset('sh_user_setting', '18404975197', '0810-0820')
     # pass
-    result = client.set('sh_user_asdas')
-    pass
+    # result = client.set('sh_user_asdas')
+    # pass

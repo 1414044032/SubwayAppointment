@@ -4,6 +4,7 @@ from subwayappointment.common.core import send_code, sh_login, sh_login_response
 from subwayappointment import redis_client
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
+from subwayappointment.common.util import send_sms
 
 api = Blueprint(name="api", import_name=__name__)
 
@@ -43,6 +44,8 @@ scheduler_logging.addHandler(file_handler)
 
 
 def loop_task():
+    # 清空已获取的进站码hash
+    redis_client.delete(sh_user_station_code)
     enter_data = get_record_data()
     response = redis_client.hgetall(sh_user_access_token)
     response1 = redis_client.hgetall(sh_user_setting)
@@ -59,10 +62,13 @@ def loop_task():
                                                   [str(key), str(item), enter_data, str(item1), str(record_status)]))
                             scheduler_logging.info("获取进站码：[{}][{}] {}-{} => {}".format(
                                 str(key), str(item), enter_data, str(item1), str(record_status)))
+                            # 发送短信
+                            sms_status = send_sms('进站码：' + str(item1))
+                            scheduler_logging.info("发送短信：[{}][{}]=> {}".format(
+                                str(key), str(item1), sms_status))
                         else:
-                            scheduler_logging.error("未取到进站码：{}".format(
-                                str(record_status),
-                            ))
+                            scheduler_logging.error("未取到进站码：[{}][{}] {}-{} => {}".format(
+                                str(key), str(item), enter_data, str(item1), str(record_status)))
                             redis_client.hset(sh_user_station_error, key, record_status)
                         break
                     except Exception as e:
@@ -75,7 +81,8 @@ def get_record_data():
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(loop_task, 'date', run_date='2020-05-17 12:00:05')
+# scheduler.add_job(loop_task, 'date', run_date='2020-05-17 12:00:05')
+scheduler.add_job(loop_task, 'cron', hour=12, second=5, day_of_week='mon,tue,wed,thu,sun')
 print('开始')
 scheduler.start()
 
