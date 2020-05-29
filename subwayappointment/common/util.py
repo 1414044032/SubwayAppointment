@@ -7,7 +7,7 @@ import json
 import datetime
 
 
-def send_sms(mtname):
+def send_sms(mtname,phone):
     client = AcsClient('LTAImDkHGeA9p55u', 'XfVTFrwBYyJQUS8oziMWw6a3LrjAr6', 'cn-hangzhou')
     request = CommonRequest()
     request.set_accept_format('json')
@@ -17,7 +17,7 @@ def send_sms(mtname):
     request.set_version('2017-05-25')
     request.set_action_name('SendSms')
     request.add_query_param('RegionId', "cn-hangzhou")
-    request.add_query_param('PhoneNumbers', "18404975197")
+    request.add_query_param('PhoneNumbers', phone)
     request.add_query_param('SignName', "王刘奇")
     request.add_query_param('TemplateCode', "SMS_190271189")
     # 您的${mtname}已于${submittime}获取成功，特此通知

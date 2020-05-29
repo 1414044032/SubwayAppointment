@@ -41,7 +41,29 @@ def get_record_data():
 def hello_word():
     print(datetime.datetime.now())
 
-# if __name__ == '__main__':
+def test():
+    return '132',312
+
+if __name__ == '__main__':
+    print(type(test()) == tuple)
+    print(str(test()))
+    # enter_data = get_record_data()
+    # result = people_insert_record(accesstoken, enter_data, time_solt='0740-0750')
+    # scheduler = BlockingScheduler()
+    # minute = '47'
+    # hour = '13'
+    # day = '*'
+    # month = '*'
+    # day_of_week = '*'
+    # scheduler.add_job(
+    #     hello_word,
+    #     trigger="cron",
+    #     second='*',
+    #     minute=minute, hour=hour, day=day, month=month, day_of_week=day_of_week
+    #
+    # )
+    # print('开始')
+    # scheduler.start()
 #     # print(loop_task())
 #     scheduler = BlockingScheduler()
 #     # scheduler.add_job(loop_task, 'date', run_date='2020-05-14 12:00:00')
@@ -49,8 +71,8 @@ def hello_word():
 #     scheduler.add_job(hello_word, 'cron',  hour=12, second=5, day_of_week='fri')
 #     print('开始')
 #     scheduler.start()
-    # result = client.hget('sh_user_setting','18404976322')
-    # result = client.hset('sh_user_setting', '18404975197', '0810-0820')
-    # pass
-    # result = client.set('sh_user_asdas')
-    # pass
+# result = client.hget('sh_user_setting','18404976322')
+# result = client.hset('sh_user_setting', '18404975197', '0810-0820')
+# pass
+# result = client.set('sh_user_asdas')
+# pass

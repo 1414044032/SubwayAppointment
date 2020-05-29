@@ -13,8 +13,6 @@ api = Blueprint(name="api", import_name=__name__)
 sh_user = 'sh_user'
 # 用户 accesstoken
 sh_user_access_token = 'sh_user_access_token'
-# 用户 reflushtoken
-sh_user_refresh_token = 'sh_user_refresh_token'
 # 用户 setting  用户以及区间
 sh_user_setting = 'sh_user_setting'
 # 验证码 存储库
@@ -46,26 +44,39 @@ scheduler_logging.addHandler(file_handler)
 def loop_task():
     # 清空已获取的进站码hash
     redis_client.delete(sh_user_station_code)
+    # 进站日期
     enter_data = get_record_data()
+    # 凭证
     response = redis_client.hgetall(sh_user_access_token)
+    # 设置
     response1 = redis_client.hgetall(sh_user_setting)
     for (key, item) in response.items():
         if item:
             for (key1, item1) in response1.items():
                 if key == key1:
                     try:
-                        record_status = people_insert_record(item, enter_data, time_solt=item1)
+                        # 获取进站码
+                        station, time_solt = item1.split('@@@')
+                        record_status = people_insert_record(item, enter_data, station=station, time_solt=time_solt)
                         # 保存调度结果
                         if record_status != -1:
+                            # 不等于-1就是成功（成功分两种一种是只有码，另一种是返回accesstoken）
                             redis_client.hset(sh_user_station_code, str(key),
                                               '@'.join(
                                                   [str(key), str(item), enter_data, str(item1), str(record_status)]))
                             scheduler_logging.info("获取进站码：[{}][{}] {}-{} => {}".format(
                                 str(key), str(item), enter_data, str(item1), str(record_status)))
                             # 发送短信
-                            sms_status = send_sms('进站码：' + str(item1))
+                            sms_status = send_sms('进站码：' + str(item1), str(key))
                             scheduler_logging.info("发送短信：[{}][{}]=> {}".format(
                                 str(key), str(item1), sms_status))
+                            # 更新access
+                            if type(record_status) == tuple:
+                                new_accesstoken = record_status[1]
+                                new_refreshtoken = record_status[2]
+                                # 保存最新的access_token
+                                # redis_client.
+                                redis_client.hset(sh_user_access_token, key, new_accesstoken + '@@@' + new_refreshtoken)
                         else:
                             scheduler_logging.error("未取到进站码：[{}][{}] {}-{} => {}".format(
                                 str(key), str(item), enter_data, str(item1), str(record_status)))
@@ -82,7 +93,7 @@ def get_record_data():
 
 scheduler = BackgroundScheduler()
 # scheduler.add_job(loop_task, 'date', run_date='2020-05-17 12:00:05')
-scheduler.add_job(loop_task, 'cron', hour=12, second=5, day_of_week='mon,tue,wed,thu,sun')
+scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10,  day_of_week='mon,tue,wed,thu,sun')
 print('开始')
 scheduler.start()
 
@@ -121,8 +132,7 @@ def login():
                         "refreshtoken": refreshtoken
                     }
                     redis_client.sadd(sh_user, phone)
-                    redis_client.hset(sh_user_access_token, phone, accesstoken)
-                    redis_client.hset(sh_user_refresh_token, phone, refreshtoken)
+                    redis_client.hset(sh_user_access_token, phone, accesstoken + '@@@' + refreshtoken)
             elif status_code == 500:
                 response_body["status"] = 1
                 response_body["info"] = "验证码已过期"
@@ -163,6 +173,7 @@ def send_verify_code():
 @api.route('/setSetting', methods=['POST'])
 def set_setting():
     phone = request.json.get("phone", "")
+    station = request.json.get("station", "")
     time_solt = request.json.get("timeSolt", "")
     phone = phone.strip()
     time_solt = time_solt.strip()
@@ -171,7 +182,7 @@ def set_setting():
         "info": '成功'
     }
     try:
-        redis_client.hset(sh_user_setting, phone, time_solt)
+        redis_client.hset(sh_user_setting, phone, station + '@@@' + time_solt)
     except Exception as e:
         scheduler_logging.error("### Error: {}".format(e))
         response_body['status'] = 1
@@ -242,6 +253,7 @@ def check_passcode():
         response_body['info'] = result
     else:
         response_body['status'] = 1
+        response_body['info'] = '未找到有效的进站码'
     return jsonify(response_body)
 
 
@@ -259,6 +271,6 @@ def check_usercount():
     if result_count:
         response_body["info"]["count"] = int(result_count)
     else:
-        redis_client.set(sh_user_count, 20)
-        response_body["info"]["count"] = 20
+        redis_client.set(sh_user_count, 50)
+        response_body["info"]["count"] = 50
     return jsonify(response_body)
