@@ -6,8 +6,20 @@ from subwayappointment.common.core import people_insert_record
 import datetime
 import redis
 import json
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    filename='logging.log',
+                    format='%(asctime)s - %(funcName)s - %(lineno)s- %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+
+def logginf_test():
+    logger.info("Start print log")
+    logger.debug("Do something")
+    logger.warning("Something maybe fail.")
+    logger.info("Finish")
 
 
 def loop_task():
@@ -41,12 +53,15 @@ def get_record_data():
 def hello_word():
     print(datetime.datetime.now())
 
+
 def test():
-    return '132',312
+    return '132', 312
+
 
 if __name__ == '__main__':
     print(type(test()) == tuple)
     print(str(test()))
+    logginf_test()
     # enter_data = get_record_data()
     # result = people_insert_record(accesstoken, enter_data, time_solt='0740-0750')
     # scheduler = BlockingScheduler()

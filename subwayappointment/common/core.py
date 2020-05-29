@@ -1,7 +1,12 @@
 import requests
 import json
 import urllib3
+import logging
 
+logging.basicConfig(level=logging.INFO,
+                    filename='logging-sche.log',
+                    format='%(asctime)s - %(funcName)s - %(lineno)s- %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 """
 https://webui.mybti.cn/#/login
 """
@@ -62,6 +67,7 @@ sh_check_record_uri = "https://webapi.mybti.cn/AppointmentRecord/GetAppointmentL
 
 
 def people_insert_record(accesstoken_refresh, enter_date, station='沙河站', time_solt='0900-0910'):
+    logger.info(accesstoken_refresh + "获取进站码")
     try:
         accesstoken, refreshtoken = accesstoken_refresh.split('@@@')
         request_header = {
@@ -94,7 +100,7 @@ def people_insert_record(accesstoken_refresh, enter_date, station='沙河站', t
         else:
             return -1
     except Exception as e:
-        print(e)
+        logger.error(e)
         return -1
 
 
@@ -115,17 +121,20 @@ def format_body_data(station, enter_date, time_solt):
         }
         return default_data
     except Exception as e:
-        print(e)
+        logger.error(e)
         return False
 
 
 # 查看结果
-def check_record(header,accesstoken, refreshtoken):
+def check_record(header, accesstoken, refreshtoken):
     try:
         result = requests.get("https://webapi.mybti.cn/AppointmentRecord/GetAppointmentList?status=0&lastid=",
                               headers=header,
                               verify=False)
         # token过期后刷新token
+        logger.info(accesstoken)
+        logger.info(refreshtoken)
+        logger.info(result.text)
         if result.status_code == 401:
             new_access_token, new_refresh_token = refreshToken(accesstoken, refreshtoken)
             if new_access_token:
@@ -139,7 +148,7 @@ def check_record(header,accesstoken, refreshtoken):
             else:
                 return True
     except Exception as e:
-        print(e)
+        logger.error(e)
         return False
 
 
@@ -182,10 +191,14 @@ def refreshToken(access_token, refresh_token):
         }
         result = requests.get(url, headers=request_header,
                               verify=False)
+
+        logger.info('刷新token情况')
+        logger.warning(result.status_code)
+        logger.warning(result.text)
         response_dict = json.loads(result.text, encoding='utf-8')
         return response_dict['accessToken'], response_dict['refreshToken']
     except Exception as e:
-        print(e)
+        logger.error(e)
         return False, False
 
 

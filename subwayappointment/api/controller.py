@@ -56,6 +56,8 @@ def loop_task():
                 if key == key1:
                     try:
                         # 获取进站码
+                        scheduler_logging.info("开始获取进站码：[{}] [{}]==>{}".format(
+                            str(key), item, item1))
                         station, time_solt = item1.split('@@@')
                         record_status = people_insert_record(item, enter_data, station=station, time_solt=time_solt)
                         # 保存调度结果
@@ -93,7 +95,7 @@ def get_record_data():
 
 scheduler = BackgroundScheduler()
 # scheduler.add_job(loop_task, 'date', run_date='2020-05-17 12:00:05')
-scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10,  day_of_week='mon,tue,wed,thu,sun')
+scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10, day_of_week='mon,tue,wed,thu,sun')
 print('开始')
 scheduler.start()
 
