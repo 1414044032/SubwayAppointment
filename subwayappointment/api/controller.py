@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 import logging
-from subwayappointment.common.core import send_code, sh_login, sh_login_response_format, people_insert_record
+from subwayappointment.common.core import send_code, sh_login, sh_login_response_format, people_insert_record, \
+    get_station_code
 from subwayappointment import redis_client
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -202,6 +203,25 @@ def get_setting():
     }
     result = redis_client.hget(sh_user_setting, phone)
     if result:
+        response_body['info'] = result
+    else:
+        response_body['status'] = 1
+    return jsonify(response_body)
+
+
+@api.route('/getCode', methods=['GET'])
+def get_code():
+    phone = request.args.get("phone", "")
+    phone = phone.strip()
+    response_body = {
+        "status": 0,
+        "info": None
+    }
+    result = redis_client.hget(sh_user_access_token, phone)
+    if result:
+        # 获取access—token
+        access_token = result.split('@@@')[0]
+        result = get_station_code(access_token)
         response_body['info'] = result
     else:
         response_body['status'] = 1

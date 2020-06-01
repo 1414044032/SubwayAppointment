@@ -217,6 +217,24 @@ def send_code(phone):
     return True
 
 
+def get_station_code(access_token):
+    url = "https://webapi.mybti.cn/AppointmentRecord/GetCurrentAppointment"
+    request_header = {
+        'Host': 'webapi.mybti.cn',
+        'Connection': 'keep-alive',
+        'Accept': 'application/json, text/plain, */*',
+        'Origin': 'https://webui.mybti.cn',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36 QBCore/4.0.1295.400 QQBrowser/9.0.2524.400 Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2875.116 Safari/537.36 NetType/WIFI MicroMessenger/7.0.5 WindowsWechat',
+        'Authorization': access_token,
+        'Referer': 'https://webui.mybti.cn/',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.5;q=0.4'
+    }
+    result = requests.get(url, headers=request_header,
+                          verify=False)
+    return json.loads(result.text, encoding='utf-8')
+
+
 # 登录
 def sh_login(phone, check_code):
     sh_login_params['phoneNumber'] = phone
@@ -237,6 +255,6 @@ def sh_login_response_format(response):
 
 
 if __name__ == '__main__':
-    test1 = 'NmY3ZjRhNzktMWY2Yy00MGZjLWI3NTQtOTkxZDRlYmZjYjNiLDE1OTE0MTg4MTI2NjQsSTArYXBrWVB6YWZFMHRRQS9UcWk0ZmpETU9nPQ==@@@MWU0NTVjOWU0NDhjNDVmNThkZWI5OTFmMGEyYzM3MTg='
+    test1 = 'NmY3ZjRhNzktMWY2Yy00MGZjLWI3NTQtOTkxZDRlYmZjYjNiLDE1OTE2MTc0Njk3OTMsQ01oam1xUmd2NmRuQkJXcEJTVk91Z01lYldVPQ==@@@ZTJkYjc4MTliN2VlNDQ5N2JlYTJkNWJlMTc4ZWI4YjA='
     access_token, refreshtoken = test1.split('@@@')
-    refreshToken(access_token, refreshtoken)
+    get_station_code(access_token)
