@@ -124,17 +124,17 @@ def login():
                 scheduler_logging.info("执行登录：[{}][{}] {}-{} => {}".format(
                     phone, check_code, status, accesstoken, refreshtoken))
                 # 判断是否有头像，作为是否绑定微信的依据
-                if len(headimgUrl) < 6:
-                    response_body["status"] = status
-                    response_body["info"] = 'login'
-                else:
-                    response_body["status"] = status
-                    response_body["info"] = {
-                        "accesstoken": accesstoken,
-                        "refreshtoken": refreshtoken
-                    }
-                    redis_client.sadd(sh_user, phone)
-                    redis_client.hset(sh_user_access_token, phone, accesstoken + '@@@' + refreshtoken)
+                # if len(headimgUrl) < 6:
+                #     response_body["status"] = status
+                #     response_body["info"] = 'login'
+                # else:
+                response_body["status"] = status
+                response_body["info"] = {
+                    "accesstoken": accesstoken,
+                    "refreshtoken": refreshtoken
+                }
+                redis_client.sadd(sh_user, phone)
+                redis_client.hset(sh_user_access_token, phone, accesstoken + '@@@' + refreshtoken)
             elif status_code == 500:
                 response_body["status"] = 1
                 response_body["info"] = "验证码已过期"
