@@ -254,7 +254,8 @@ def sh_login_response_format(response):
     return 0, accesstoken, refreshtoken, headimgUrl
 
 
-if __name__ == '__main__':
-    test1 = 'NmY3ZjRhNzktMWY2Yy00MGZjLWI3NTQtOTkxZDRlYmZjYjNiLDE1OTE2MTc0Njk3OTMsQ01oam1xUmd2NmRuQkJXcEJTVk91Z01lYldVPQ==@@@ZTJkYjc4MTliN2VlNDQ5N2JlYTJkNWJlMTc4ZWI4YjA='
-    access_token, refreshtoken = test1.split('@@@')
-    get_station_code(access_token)
+
+# if __name__ == '__main__':
+#     test1 = 'NmY3ZjRhNzktMWY2Yy00MGZjLWI3NTQtOTkxZDRlYmZjYjNiLDE1OTE2MTc0Njk3OTMsQ01oam1xUmd2NmRuQkJXcEJTVk91Z01lYldVPQ==@@@ZTJkYjc4MTliN2VlNDQ5N2JlYTJkNWJlMTc4ZWI4YjA='
+#     access_token, refreshtoken = test1.split('@@@')
+#     print(get_station_code(access_token))

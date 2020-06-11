@@ -5,7 +5,7 @@ from subwayappointment.common.core import send_code, sh_login, sh_login_response
 from subwayappointment import redis_client
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-from subwayappointment.common.util import send_sms
+from subwayappointment.common.util import send_sms, send_inform_sms
 
 api = Blueprint(name="api", import_name=__name__)
 
@@ -89,6 +89,14 @@ def loop_task():
                         scheduler_logging.error("### Error: {}".format(e))
 
 
+def loop_task1():
+    response = redis_client.hgetall(sh_user_setting)
+    for (key, item) in response.items():
+        sms_status = send_inform_sms(key)
+        scheduler_logging.info("发送短信：[{}][{}]=> {}".format(
+            str(key), str(item), sms_status))
+
+
 def get_record_data():
     tomorrow = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
     return ''.join(tomorrow.split(' ')[0].split('-'))
@@ -97,6 +105,7 @@ def get_record_data():
 scheduler = BackgroundScheduler()
 # scheduler.add_job(loop_task, 'date', run_date='2020-05-17 12:00:05')
 scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10, day_of_week='mon,tue,wed,thu,sun')
+scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10, day_of_week='sat')
 print('开始')
 scheduler.start()
 
