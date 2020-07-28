@@ -5,7 +5,6 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from subwayappointment.common.core import people_insert_record
 import datetime
 import redis
-import json
 import logging
 
 logging.basicConfig(level=logging.INFO,

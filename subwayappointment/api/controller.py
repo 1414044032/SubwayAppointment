@@ -105,7 +105,7 @@ def get_record_data():
 scheduler = BackgroundScheduler()
 # scheduler.add_job(loop_task, 'date', run_date='2020-05-17 12:00:05')
 scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10, day_of_week='mon,tue,wed,thu,sun')
-scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10, day_of_week='sat')
+# scheduler.add_job(loop_task, 'cron', hour=12, minute=0, second=10, day_of_week='sat')
 print('开始')
 scheduler.start()
 
